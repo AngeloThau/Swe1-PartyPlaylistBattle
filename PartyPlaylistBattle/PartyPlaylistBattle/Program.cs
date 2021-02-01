@@ -6,7 +6,10 @@ namespace PartyPlaylistBattle
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Database.DatabaseHandler database = new Database.DatabaseHandler();
+
+            database.NewUser("user1", "pw1");
+            database.DeleteUser("user1");
         }
     }
 }

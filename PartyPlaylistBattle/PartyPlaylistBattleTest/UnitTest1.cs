@@ -12,7 +12,11 @@ namespace PartyPlaylistBattleTest
         [Test]
         public void Test1()
         {
-            Assert.Pass();
+            Database.DatabaseHandler database = new Database.DatabaseHandler();
+
+            database.NewUser("user1", "pw1");
+            database.DeleteUser("user1");
+            
         }
     }
 }
