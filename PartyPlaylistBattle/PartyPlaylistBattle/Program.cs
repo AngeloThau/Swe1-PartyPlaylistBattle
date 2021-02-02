@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Npgsql;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 
 namespace PartyPlaylistBattle
 {
@@ -6,10 +10,17 @@ namespace PartyPlaylistBattle
     {
         static void Main(string[] args)
         {
-            Database.DatabaseHandler database = new Database.DatabaseHandler();
+            /*
+            int MaxThreadsCount = Environment.ProcessorCount * 4;
+            ThreadPool.SetMaxThreads(MaxThreadsCount, MaxThreadsCount);
+            ThreadPool.SetMinThreads(2, 2);
 
-            database.NewUser("user1", "pw1");
-            database.DeleteUser("user1");
+
+            Console.WriteLine("Starting Server on Port 8080");
+            HTTPServer.HTTPServer server = new HTTPServer.HTTPServer(8080);*/
+
+            Database.DatabaseHandler database = new Database.DatabaseHandler();
+            database.NewUser("Secondo", "second");
         }
     }
 }

@@ -12,7 +12,7 @@ namespace PartyPlaylistBattle.HTTPServer
 {
 
     public class HTTPServer
-    {
+    {/*
 
         private bool running = false;
         private TcpListener listener;
@@ -71,14 +71,14 @@ namespace PartyPlaylistBattle.HTTPServer
 
             Debug.WriteLine(msg);
 
-            Request req = new Request(msg);  //create Request Object that has all the Request infos
+            RequestHandler req = new RequestHandler(msg);  //create Request Object that has all the Request infos
 
             foreach (var item in req.HeadRest)
             {
                 Console.WriteLine(item.ToString());
             }
 
-            IMessageHandler handler = new MessageHandler(login, myTcpClient, req.Type, req.Order, req.authorization, req.body);
+            RequestHandler handler = new RequestHandler(login, myTcpClient, req.Type, req.Order, req.authorization, req.body);
 
             if (req.Type == "POST" && req.Order == "/sessions")
             {
@@ -172,7 +172,7 @@ namespace PartyPlaylistBattle.HTTPServer
 
 
         //--------------------------------------do the Battle with two Threads------------------------------
-        private bool DoBattle(string authorization)
+        /*private bool DoBattle(string authorization)
         {
 
             lock (isThereAnoterPlayerLock)
@@ -218,8 +218,8 @@ namespace PartyPlaylistBattle.HTTPServer
             return true;
 
 
-        }
+        }*/
 
-    }
+    } 
 }
 

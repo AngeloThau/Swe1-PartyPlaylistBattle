@@ -7,8 +7,12 @@ namespace PartyPlaylistBattle.Database
 {
     class DatabaseHandler
     {
-        private readonly string connection = "Host=loclhost;Username=postgres;Password=Safetyfirst;Database=PartyPlaylistBattle";
+        private readonly string connection;
 
+        public DatabaseHandler()
+        {
+            connection = "Host=localhost;Username=postgres;Password=Safetyfirst;Database=PartyPlaylistBattle";
+        }
 
         public void NewUser(string username, string password)
         {
@@ -19,7 +23,7 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //instert Statement
-                var sql = "INSERT INTO user (Username, Password, Admin, Score) VALUES(@username, @password, false, 100";
+                var sql = "INSERT INTO users (username, password, admin, score) VALUES(@username, @password, false, 100)";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("username", username);
                 cmd.Parameters.AddWithValue("password", password);
@@ -45,7 +49,7 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //Delete Statement
-                var sql = "DELETE FROM user WHERE Username='" + username + "'";
+                var sql = "DELETE FROM users WHERE Username='" + username + "'";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Prepare();
 
@@ -69,7 +73,7 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //Get Score
-                var sql = "SELECT Score FROM user WHERE Username='" + username + "'";
+                var sql = "SELECT score FROM users WHERE Username='" + username + "'";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Prepare();
 
