@@ -11,7 +11,7 @@ using System.Net.Security;
 
 namespace PartyPlaylistBattle.HTTPServer
 {
-    public class ThisTcpClient : ITcpClient
+    public class ThisTcpClient
     {
         public TcpClient myclient;
         public ThisTcpClient()

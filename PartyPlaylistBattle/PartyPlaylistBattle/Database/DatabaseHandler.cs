@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PartyPlaylistBattle.Database
 {
-    class DatabaseHandler
+    public class DatabaseHandler
     {
         private readonly string connection;
 

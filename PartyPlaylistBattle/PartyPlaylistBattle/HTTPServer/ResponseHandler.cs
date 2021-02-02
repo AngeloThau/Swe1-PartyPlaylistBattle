@@ -11,7 +11,7 @@ using System.Linq;
 namespace PartyPlaylistBattle.HTTPServer
 {
     class ResponseHandler
-    {
+    {/*
         public NetworkStream stream;
         public ResponseHandler(NetworkStream _stream)
 
@@ -56,6 +56,6 @@ namespace PartyPlaylistBattle.HTTPServer
             sb.AppendLine(message);
             System.Diagnostics.Debug.WriteLine(sb.ToString());
             writer.Write(sb.ToString());
-        }
+        }*/
     }
 }
