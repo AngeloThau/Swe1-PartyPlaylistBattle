@@ -7,74 +7,62 @@ namespace PartyPlaylistBattle.HTTPServer
     class RequestHandler
 
     {
-        public String Type { get; set; }
-        public String Order { get; set; }
-        public String Version { get; set; }
-        public String authorization { get; set; }
-        public String body { get; set; }
-        public String[] HeadRest { get; set; }
+        public string Type { get; set; }
+        public string Command { get; set; }
+        public string Version { get; set; }
+        public string Authorization { get; set; }
+        public string Body { get; set; }
+        public string[] Rest { get; set; }
 
-
-        public RequestHandler(String request)
+        public RequestHandler(string request)
         {
             if (String.IsNullOrEmpty(request))
             {
                 Type = "";
-                Order = "";
+                Command = "";
                 Version = "";
-                body = "";
-                authorization = "";
-                HeadRest[0] = "";
+                Body = "";
+                Authorization = "";
+                Rest[0] = "";
 
             }
-
             else
             {
-                String[] tokens = request.Split("\n");
-                String[] mymessage = tokens[0].Split(" ");
-                Type = mymessage[0];
-                Order = mymessage[1];
-                Version = mymessage[2];
-                HeadRest = tokens;
-
-                int bodystart = 0;
-                for (int i = 0; i < HeadRest.Length; i++)
+                string[] allLines = request.Split("\n");
+                string[] partsofFirstLine = allLines[0].Split(" ");
+                Type = partsofFirstLine[0];
+                Command = partsofFirstLine[1];
+                Version = partsofFirstLine[2];
+                Rest = allLines;
+                int go = 0;
+                for (int i = 0; i < Rest.Length; i++)
                 {
-                    if (HeadRest[i] == "\r")
+                    if (Rest[i] == "\r")
                     {
-                        bodystart = i + 1;
-                        //body = request.HeadRest[i + 1];
+                        go = i + 1;
                     }
                 }
-                for (int a = bodystart; a < HeadRest.Length; a++)
+                for (int x = go; x < Rest.Length; x++)
                 {
-                    this.body += HeadRest[a];
+                    Body += Rest[x];
                 }
 
-                authorization = GetAuthorization(HeadRest, "Authorization: Basic");
-
-
-
+                Authorization = CheckAuthorization(Rest, "Authorization: Basic");
             }
         }
 
-        //gets authorization out of head
-        private string GetAuthorization(string[] tokens, string wordOne)
+        private string CheckAuthorization(string[] rest, string aut)
         {
-            foreach (var element in tokens)
+            foreach (var x in rest)
             {
-                if (element.Contains(wordOne))
+                if (x.Contains(aut))
                 {
-                    int start = element.IndexOf(wordOne) + wordOne.Length + 1;
-                    int end = element.IndexOf("\r") - start;
-                    return element.Substring(start, end);
+                    int start = x.IndexOf(aut) + aut.Length + 1;
+                    int end = x.IndexOf("\r") - start;
+                    return x.Substring(start, end);
                 }
-
-
             }
             return "";
-
-
         }
     }
 }

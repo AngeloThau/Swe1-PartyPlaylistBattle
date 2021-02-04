@@ -10,17 +10,14 @@ namespace PartyPlaylistBattle
     {
         static void Main(string[] args)
         {
-            /*
+            
             int MaxThreadsCount = Environment.ProcessorCount * 4;
             ThreadPool.SetMaxThreads(MaxThreadsCount, MaxThreadsCount);
             ThreadPool.SetMinThreads(2, 2);
 
-
             Console.WriteLine("Starting Server on Port 8080");
-            HTTPServer.HTTPServer server = new HTTPServer.HTTPServer(8080);*/
-
-            Database.DatabaseHandler database = new Database.DatabaseHandler();
-            database.NewUser("Secondo", "second");
+            HTTPServer.HTTPServer server = new HTTPServer.HTTPServer(8080);
+            server.Start();
         }
     }
 }

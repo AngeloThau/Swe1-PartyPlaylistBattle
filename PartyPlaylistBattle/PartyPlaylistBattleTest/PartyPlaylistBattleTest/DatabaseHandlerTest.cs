@@ -13,6 +13,12 @@ namespace PartyPlaylistBattleTest
             PartyPlaylistBattle.Database.DatabaseHandler test = new PartyPlaylistBattle.Database.DatabaseHandler();
             Assert.IsNotNull(test);
         }
+        [Test]
+        public void DatabaseHandlerLoginUser()
+        {
+            PartyPlaylistBattle.Database.DatabaseHandler test = new PartyPlaylistBattle.Database.DatabaseHandler();
+            Assert.IsTrue(test.LoginUser("Firsty", "first"));
+        }
 
     }
 }
