@@ -8,6 +8,7 @@ namespace PartyPlaylistBattle.Database
     public class DatabaseHandler
     {
         private readonly string connection;
+        private string currentAdmin;
 
         public DatabaseHandler()
         {
@@ -43,6 +44,7 @@ namespace PartyPlaylistBattle.Database
                 return false;
             }
         }
+
 
         public void DeleteUser(string username)
         {
@@ -182,6 +184,7 @@ namespace PartyPlaylistBattle.Database
                 //Select Statement
                 var sql = "SELECT username, score, admin FROM users WHERE username= @username";
                 using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("username", username);
                 cmd.Prepare();
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
                 string data = "";
@@ -200,6 +203,52 @@ namespace PartyPlaylistBattle.Database
             }
         }
 
+        public void SetAdmin(string username)
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Select Statement
+                var sql = "UPDATE admin FROM users WHERE username= @username";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("username", username);
+                cmd.Prepare();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();               
+                con.Close();
+                this.currentAdmin = username;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error setting Admin");
+            }
+        }
+
+        public void ResetAdmin()
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Delete Statement
+                var sql = "UPDATE users SET admin = false)";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Prepare();
+
+                cmd.ExecuteNonQuery();
+
+                Console.WriteLine("Admin Reset");
+                con.Close();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error reseting the Admin");
+            }
+        }
         public string GetScoreboard()
         {
             try

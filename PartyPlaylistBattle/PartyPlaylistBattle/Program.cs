@@ -15,8 +15,8 @@ namespace PartyPlaylistBattle
             ThreadPool.SetMaxThreads(MaxThreadsCount, MaxThreadsCount);
             ThreadPool.SetMinThreads(2, 2);
 
-            Console.WriteLine("Starting Server on Port 8080");
-            HTTPServer.HTTPServer server = new HTTPServer.HTTPServer(8080);
+            Console.WriteLine("Starting Server on Port 10001");
+            HTTPServer.HTTPServer server = new HTTPServer.HTTPServer(10001);
             server.Start();
         }
     }

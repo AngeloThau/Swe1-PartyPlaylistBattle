@@ -15,7 +15,6 @@ namespace PartyPlaylistBattle.HTTPServer
     {
         public const String _version = "HTTP/1.1";
         private bool running = false;
-        //Dictionary<string, string> messages = new Dictionary<string, string>();
         private TcpListener listener;
         public List<string> user;
         public List<string> challenger;
@@ -37,6 +36,7 @@ namespace PartyPlaylistBattle.HTTPServer
 
         public void Start()
         {
+            db.ResetAdmin();
             Thread thread = new Thread(new ThreadStart(Run));
             thread.Start();
         }
