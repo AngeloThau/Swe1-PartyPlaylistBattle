@@ -16,5 +16,11 @@ namespace PartyPlaylistBattle.Tournament
             this.set = set;
             personalScore = 0;
         }
+        public User()
+        {
+            this.username = "";
+            this.set = null;
+            personalScore = 0;
+        }
     }
 }

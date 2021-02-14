@@ -203,7 +203,7 @@ namespace PartyPlaylistBattle.Database
             }
         }
 
-        public void SetAdmin(string username)
+        public bool SetAdmin(string username)
         {
             try
             {
@@ -212,21 +212,23 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //Select Statement
-                var sql = "UPDATE admin FROM users WHERE username= @username";
+                var sql = "UPDATE users SET admin = true WHERE username = @username";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("username", username);
                 cmd.Prepare();
                 using NpgsqlDataReader reader = cmd.ExecuteReader();               
                 con.Close();
                 this.currentAdmin = username;
+                return true;
             }
             catch (Exception)
             {
                 Console.WriteLine("Error setting Admin");
+                return false;
             }
         }
 
-        public void ResetAdmin()
+        public bool ResetAdmin()
         {
             try
             {
@@ -235,7 +237,7 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //Delete Statement
-                var sql = "UPDATE users SET admin = false)";
+                var sql = "UPDATE users SET admin = false WHERE admin = true";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Prepare();
 
@@ -243,10 +245,12 @@ namespace PartyPlaylistBattle.Database
 
                 Console.WriteLine("Admin Reset");
                 con.Close();
+                return true;
             }
             catch (Exception)
             {
                 Console.WriteLine("Error reseting the Admin");
+                return false;
             }
         }
         public string GetScoreboard()
@@ -264,7 +268,7 @@ namespace PartyPlaylistBattle.Database
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
 
                 int x = 1;
-                string scoreboard = "----------Scoreboard----------";
+                string scoreboard = "\n----------Scoreboard----------\n";
 
                 while (reader.Read())
                 {

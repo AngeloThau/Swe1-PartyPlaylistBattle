@@ -173,9 +173,9 @@ namespace PartyPlaylistBattle.HTTPServer
             {
                 switch (command)
                 {
-                    //case "/deck":
-                        //setDeck(user);
-                        //break;
+                    case "/actions":
+                        SetActions(user);
+                        break;
                     //case "/deck/unset":
                        // unsetDeck(user);
                        // break;
@@ -613,6 +613,30 @@ namespace PartyPlaylistBattle.HTTPServer
             }
 
         }*/
+        public void SetActions(List<string> username)
+        {
+            string status = "";
+            string mime = "";
+            string data = "";
+            dynamic jasondata = JObject.Parse(body);
+            string newname = jasondata.Name;
+            string password = jasondata.Password;
+
+            if (false==true)
+            {
+                data = "\nBattle Commencing\n";
+                status = "200 OK";
+                mime = "text/plain";
+                Response(status, mime, data);
+            }
+            else
+            {
+                data = "\nError when starting Tournament\n";
+                status = "404 Not Found";
+                mime = "text/plain";
+                Response(status, mime, data);
+            }
+        }
         public void changePlayersData(string username)
         {
             string status = "";

@@ -20,5 +20,19 @@ namespace PartyPlaylistBattleTest
             Assert.IsTrue(test.LoginUser("Firsty", "first"));
         }
 
+        [Test]
+        public void DatabaseHandlerSetAdmin()
+        {
+            PartyPlaylistBattle.Database.DatabaseHandler test = new PartyPlaylistBattle.Database.DatabaseHandler();
+            Assert.IsTrue(test.SetAdmin("Firsty"));
+        }
+
+        [Test]
+        public void DatabaseHandlerResetAdmin()
+        {
+            PartyPlaylistBattle.Database.DatabaseHandler test = new PartyPlaylistBattle.Database.DatabaseHandler();
+            Assert.IsTrue(test.ResetAdmin());
+        }
+
     }
 }
