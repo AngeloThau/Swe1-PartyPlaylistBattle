@@ -66,7 +66,7 @@ namespace PartyPlaylistBattle.HTTPServer
                 }
                 else
                 {
-                    user.Add(name + "-PPBToken");
+                    user.Add(name + "-ppbToken");
                     string mime = "text/plain";
                     string status = "200 OK";
                     string data = "\nuser OK \n";
@@ -174,7 +174,7 @@ namespace PartyPlaylistBattle.HTTPServer
                 switch (command)
                 {
                     case "/actions":
-                        SetActions(user);
+                        SetActions(ExtractUsername(authorization));
                         break;
                     //case "/deck/unset":
                        // unsetDeck(user);
@@ -228,7 +228,6 @@ namespace PartyPlaylistBattle.HTTPServer
             string splitCommand = command;
             string[] temp = splitCommand.Split("/");
             id = temp[2];
-            //deleteTrading(id);
             invalidCommand();
         }
         public void invalidType()
@@ -264,59 +263,7 @@ namespace PartyPlaylistBattle.HTTPServer
                 Response(status, mime, data);
             }
         }
-        /*public void listCards(List<string> user)
-        {
-            string name = ExtractUsername(authorization);
-
-            List<string> allCardsofPlayer = db.getAllCardsOfPlayer(name);
-            string list = "";
-            foreach (string card in allCardsofPlayer)
-            {
-                list += card + "\n\n";
-            }
-            string status = "200 OK";
-            string mime = "text/plain";
-            Response(status, mime, list);
-            return;
-        }
-        
-        public void listDeck(List<string> user)
-        {
-
-            string name = ExtractUsername(authorization);
-
-            List<string> allCardsofPlayer = db.getAllCardsInDeck(name);
-            string list = "";
-            foreach (string card in allCardsofPlayer)
-            {
-                list += card + "\n\n";
-            }
-            string status = "200 OK";
-            string mime = "text/plain";
-            Response(status, mime, list);
-            return;
-        }
-
-        public void listStats(List<string> user)
-        {
-            string name = ExtractUsername(authorization);
-            string points = db.getPoints(name).ToString();
-            if (points != "0")
-            {
-                string status = "200 OK";
-                string mime = "text/plain";
-                Response(status, mime, points);
-            }
-            else
-            {
-                string data = "\nUnexpected Database Error \n";
-                string status = "404 Not found";
-                string mime = "text/plain";
-                Response(status, mime, data);
-                return;
-            }
-        }
-        */
+ 
         public void listScoreboard(List<string> user)
         {
             string scoreboard = db.GetScoreboard();
@@ -335,30 +282,7 @@ namespace PartyPlaylistBattle.HTTPServer
             }
         }
 
-        /*public void listTradings(List<string> user)
-        {
-            if (db.existTradingOffer())
-            {
-                List<string> allTrades = new List<string>();
-                allTrades = db.showAllTradings();
-                string myString = "";
-                foreach (string line in allTrades)
-                {
-                    myString += line;
-                }
-                string data = myString;
-                string status = "200 OK";
-                string mime = "text/plain";
-                Response(status, mime, data);
-            }
-            else
-            {
-                string data = "No tradings found, sorry...";
-                string status = "404 Not Found";
-                string mime = "text/plain";
-                Response(status, mime, data);
-            }
-        }*/
+
 
         public void registerUser()
         {
@@ -380,263 +304,55 @@ namespace PartyPlaylistBattle.HTTPServer
                 Response(status, mime, data);
             }
         }
-        /*public void addNewPackage(List<string> user)
-        {
-            if (authorization != "admin-mtcgToken")
-            {
-                string status = "text/plain";
-                string mime = "404 Not Found";
-                string data = "\nonly admin is allowed to create packages";
-                Response(status, mime, data);
-                return;
-            }
-            else
-            {
-                JArray jasarray = JArray.Parse(body);
-                var obj = jasarray[0];
-                int packid = db.getMaxIDfromPackage() + 1;
 
-                for (int i = 0; i < jasarray.Count; i++)
-                {
-                    string cardid = (string)jasarray[i]["Id"];
-                    string cardname = (string)jasarray[i]["Name"];
-                    double damage = (double)jasarray[i]["Damage"];
-                    //string type = (string)jasarray[i]["Cardtype"];
-                    //string element = (string)jasarray[i]["Element"];
-                    db.addCard(cardid, cardname, damage, "-", "-");
-                    db.addPackage(cardid, packid, false);
-                }
-
-                string data = "\nPackage created OKfully\n";
-                string status = "200 OK";
-                string mime = "text/plain";
-
-                Response(status, mime, data);
-            }
-        }
-
-        public void buyPackage(List<string> user)
-        {
-            string status = "";
-            string mime = "";
-            string data = "";
-            string name = ExtractUsername(authorization);
-            if (db.getCoins(name) < 5)
-            {
-                data = "\nSorry, you need at least 5 coins to buy a package\n";
-                status = "200 OK";
-                mime = "text/plain";
-                Response(status, mime, data);
-                return;
-            }
-            else if (!db.getAvailablePackages())
-            {
-                data = "\nSorry, no package left\n";
-                status = "200 OK";
-                mime = "text/plain";
-                Response(status, mime, data);
-                return;
-            }
-            else
-            {
-                int packid = db.getIDfromPackage();
-                foreach (var cardid in db.getCardsOfPackage(packid))
-                {
-                    db.buyPackage(name, cardid);
-                    db.sellPackage(cardid, true);
-                }
-                db.updateCoins(name, 5);
-
-                data = "\nPackage aquired OKfully\n";
-                status = "200 OK";
-                mime = "text/plain";
-                Response(status, mime, data);
-            }
-        }
-
-        public void setDeck(List<string> user)
-        {
-            string status = "";
-            string mime = "";
-            string data = "";
-            string name = ExtractUsername(authorization);
-            JArray jasarray = JArray.Parse(body);
-            if (jasarray.Count < 4)
-            {
-                data = "\nnot enough cards: you need 4 cards in your deck\n";
-                status = "404 Not found";
-                mime = "text/plain";
-                Response(status, mime, data);
-                return;
-            }
-            else if (jasarray.Count > 4)
-            {
-                data = "\ntoo many cards: you need 4 cards in your deck\n";
-                status = "404 Not found";
-                mime = "text/plain";
-                Response(status, mime, data);
-                return;
-            }
-            else if (db.existCardsInDeck(name) != 0)
-            {
-                data = "\nDeck is already set\n";
-                status = "404 Not found";
-                mime = "text/plain";
-                Response(status, mime, data);
-                return;
-            }
-            else if (jasarray.Count == 4 && db.existCardsInDeck(name) == 0)
-            {
-                foreach (string cardid in jasarray)
-                {
-                    db.defineDeck(name, cardid, true);
-                }
-                data = "\nDeck is ready to rumble\n";
-                status = "200 OK";
-                mime = "text/plain";
-                Response(status, mime, data);
-            }
-        }
-
-        public void unsetDeck(List<string> user)
-        {
-            string status = "";
-            string mime = "";
-            string data = "";
-            string name = ExtractUsername(authorization);
-
-            db.unsetDeck(name);
-            data = "\nDeck is not ready to rumble anymore\n";
-            status = "200 OK";
-            mime = "text/plain";
-            Response(status, mime, data);
-        }
-
-        public void newTradingDeal(List<string> user)
-        {
-            string status = "";
-            string mime = "";
-            string data = "";
-            string tradeid = "";
-            string cardid = "";
-            string type = "";
-            string requirement = "";
-            string playername = ExtractUsername(authorization);
-            dynamic jasondata = JObject.Parse(body);
-            tradeid = (string)jasondata["Id"];
-            cardid = (string)jasondata["CardToTrade"];
-            type = (string)jasondata["Type"];
-            requirement = (string)jasondata["MinimumDamage"];
-            if (db.existsCardInDeckWithID(cardid))
-            {
-                data = "\nCan't trade with card in your deck\n";
-                status = "404 Not Found";
-                mime = "text/plain";
-                Response(status, mime, data);
-            }
-            else
-            {
-                if (!db.existTradingOfferWithID(tradeid))
-                {
-                    db.newTradingEntry(cardid, tradeid, type, requirement, playername);
-                    data = "\nTrading deal set\n";
-                    status = "200 OK";
-                    mime = "text/plain";
-                    Response(status, mime, data);
-                }
-                else
-                {
-                    data = "\nTradeID already used\n";
-                    status = "404 Not Found";
-                    mime = "text/plain";
-                    Response(status, mime, data);
-                }
-            }
-        }
-
-        public void deleteTrading(string id)
-        {
-            string status = "";
-            string mime = "";
-            string data = "";
-            if (db.existTradingOfferWithID(id))
-            {
-                db.deleteTradingEntry(id);
-                data = "\nTrading deal delete OKfully\n";
-                status = "200 OK";
-                mime = "text/plain";
-                Response(status, mime, data);
-            }
-            else
-            {
-                data = "\nTradeID already usednot found\n";
-                status = "404 Not Found";
-                mime = "text/plain";
-                Response(status, mime, data);
-            }
-        }
-        public void doTrading(string tradeId)
-        {
-            string status = "";
-            string mime = "";
-            string data = "";
-            string name = ExtractUsername(authorization);
-            dynamic jasondata = JProperty.Parse(body);
-            string yourCardid = jasondata;
-            string otherName = db.getNameOfTradingOffer(tradeId);
-            string tradeCardId = db.getCardIDfromTrade(tradeId);
-            if (db.getNameOfTradingOffer(tradeId) != name)
-            {
-                if (db.changeCardOwner(tradeCardId, name))
-                {
-                    db.tradeWithYourCard(yourCardid, otherName);
-                    db.deleteTradingEntry(tradeId);
-                    data = "\nTrading deal done\n";
-                    status = "200 OK";
-                    mime = "text/plain";
-                    Response(status, mime, data);
-                }
-                else
-                {
-                    data = "\nSorry, no trading deal for you... \n";
-                    status = "404 Not Found";
-                    mime = "text/plain";
-                    Response(status, mime, data);
-                }
-            }
-            else
-            {
-                data = "\nSorry, you can't trade with yourself... \n";
-                status = "404 Not Found";
-                mime = "text/plain";
-                Response(status, mime, data);
-            }
-
-        }*/
-        public void SetActions(List<string> username)
+        public void SetActions(string username)
         {
             string status = "";
             string mime = "";
             string data = "";
             dynamic jasondata = JObject.Parse(body);
-            string newname = jasondata.Name;
-            string password = jasondata.Password;
-
-            if (false==true)
+            string actions = jasondata.actions;
+            
+            if (actions!=null)
             {
-                data = "\nBattle Commencing\n";
+                char[] chactions = actions.ToCharArray();
+                if(chactions.Length!=5)
+                {
+                    data = "\nWrong Actions (only this format: 'RPSLV' is allowed)\n";
+                    status = "404 Not Found";
+                    mime = "text/plain";
+                    Response(status, mime, data);
+                    return;
+                }
+                foreach(char ch in chactions)
+                {
+                    if(!ch.Equals('R') && !ch.Equals('P') && !ch.Equals('S') && !ch.Equals('L') && !ch.Equals('V'))
+                    {
+                        data = "\nWrong Actions (only this format: 'RPSLV' is allowed)\n";
+                        status = "404 Not Found";
+                        mime = "text/plain";
+                        Response(status, mime, data);
+                        return;
+                    }
+                }
+                         
+                
+                db.ChangeActions(username, actions);
+
+                data = "\nActions updated\n";
                 status = "200 OK";
                 mime = "text/plain";
                 Response(status, mime, data);
             }
             else
             {
-                data = "\nError when starting Tournament\n";
+                data = "\nError when updating Actions\n";
                 status = "404 Not Found";
                 mime = "text/plain";
                 Response(status, mime, data);
             }
         }
+
         public void changePlayersData(string username)
         {
             string status = "";
@@ -644,10 +360,11 @@ namespace PartyPlaylistBattle.HTTPServer
             string data = "";
             dynamic jasondata = JObject.Parse(body);
             string newname = jasondata.Name;
-            string password = jasondata.Password;
+            string bio = jasondata.Bio;
+            string image = jasondata.Image;
 
 
-            if (db.ChangeUser(username, password, newname))
+            if (db.ChangeUser(username, newname, bio, image))
             {
                 data = "\nData updated\n";
                 status = "200 OK";
@@ -656,7 +373,7 @@ namespace PartyPlaylistBattle.HTTPServer
             }
             else
             {
-                data = "\nUpdating your data not OKful\n";
+                data = "\nUpdating your data not OK\n";
                 status = "404 Not Found";
                 mime = "text/plain";
                 Response(status, mime, data);
