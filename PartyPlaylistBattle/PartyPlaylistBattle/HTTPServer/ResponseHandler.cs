@@ -121,36 +121,17 @@ namespace PartyPlaylistBattle.HTTPServer
         }
         public void handlePost(List<string> user)
         {
-
-            /*string tradeId = "";
-            if (command.Contains("/tradings/") && command.Length > 10)
-            {
-                tradeId = command.Substring(10);
-            }
-            if (tradeId != "")
-            {
-                doTrading(tradeId);
-            }
-            else
-            {
                 switch (command)
                 {
-                    case "/packages":
-                        addNewPackage(user);
-                        break;
-                    case "/transactions/packages":
-                        buyPackage(user);
-                        break;
-                    case "/tradings":
-                        newTradingDeal(user);
+                    case "/lib":
+                        AddToLibrary(ExtractUsername(authorization));
                         break;
                     default:
                         invalidCommand();
                         break;
                 }
-            }*/
-            invalidCommand();
         }
+     
         private void handlePut(List<string> user)
         {
             string playername = "";
@@ -215,6 +196,12 @@ namespace PartyPlaylistBattle.HTTPServer
                 {              
                     case "/score":
                         listScoreboard(user);
+                        break;
+                    case "/stats":
+                        listStats(ExtractUsername(authorization));
+                        break;
+                    case "/lib":
+                        listLibrary(ExtractUsername(authorization));
                         break;
                     default:
                         invalidCommand();
@@ -282,7 +269,68 @@ namespace PartyPlaylistBattle.HTTPServer
             }
         }
 
+        public void listStats(string username)
+        {
+            string stats = db.GetStats(username);
+            if (stats == "")
+            {
+                string data = "\nUnexpected Database Error \n";
+                string status = "404 Not found";
+                string mime = "text/plain";
+                Response(status, mime, data);
+            }
+            else
+            {
+                string status = "200 OK";
+                string mime = "text/plain";
+                Response(status, mime, stats);
+            }
+        }
 
+        public void listLibrary(string username)
+        {
+            string library = db.GetMediaLibrary(username);
+            if (library == "")
+            {
+                string data = "\nUnexpected Database Error \n";
+                string status = "404 Not found";
+                string mime = "text/plain";
+                Response(status, mime, data);
+            }
+            else
+            {
+                string status = "200 OK";
+                string mime = "text/plain";
+                Response(status, mime, library);
+            }
+        }
+
+        public void AddToLibrary(string username)
+        {
+            dynamic jasondata = JObject.Parse(body);
+            string name = jasondata.Name;
+            string url = jasondata.Url;
+            int rating = jasondata.Rating;
+            string genre = jasondata.Genre;
+            string title = jasondata.Title;
+            string length = jasondata.Length;
+            string album = jasondata.Album;
+
+            if (db.AddToLibrary(name, username, url, rating, genre, title, length, album))
+            {
+                string data = "\nMedia sucessfully insterted\n";
+                string status = "200 OK";
+                string mime = "text/plain";
+                Response(status, mime, data);
+            }
+            else
+            {
+                string data = "\nUnexpected Database Error\n";
+                string status = "200 OK";
+                string mime = "text/plain";
+                Response(status, mime, data);
+            }
+        }
 
         public void registerUser()
         {

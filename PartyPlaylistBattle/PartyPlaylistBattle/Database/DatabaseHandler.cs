@@ -182,25 +182,48 @@ namespace PartyPlaylistBattle.Database
         }
 
         //MediaLibrary-Functions
-        public bool AddToLibrary(string name, string user, string url, int rating, string genre, string title, string length, string album)
+        public bool AddToLibrary(string name, string username, string url, int rating, string genre, string title, string length, string album)
         {
-            try
-            {
+            //try
+            //{
                 //Establishing Connection
                 using var con = new NpgsqlConnection(connection);
                 con.Open();
 
                 //instert Statement
-                var sql = "INSERT INTO library (name, user, url, rating, genre, title, length, album) VALUES(@name, @user, @url, @rating, @genre, @title, @length, @album)";
+                var sql = "INSERT INTO library (name, username, url, rating, genre, title, length, album) VALUES(@name, @username, @url, @rating, @genre, @title, @length, @album)";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("name", name);
-                cmd.Parameters.AddWithValue("user", user);
+                cmd.Parameters.AddWithValue("username", username);
                 cmd.Parameters.AddWithValue("url", url);
                 cmd.Parameters.AddWithValue("rating", rating);
                 cmd.Parameters.AddWithValue("genre", genre);
-                cmd.Parameters.AddWithValue("title", title);
+                if(title != null)
+                {
+                    cmd.Parameters.AddWithValue("title", title);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("title", "");
+                }
+
+                if (length != null)
+                {
                 cmd.Parameters.AddWithValue("length", length);
-                cmd.Parameters.AddWithValue("album", album);
+                }
+                else
+                {
+                cmd.Parameters.AddWithValue("length", "");
+                }
+                if (album != null)
+                {
+                    cmd.Parameters.AddWithValue("album", album);
+                }
+                else
+                {
+                    cmd.Parameters.AddWithValue("album", "");
+                }
+            
                 cmd.Prepare();
 
                 cmd.ExecuteNonQuery();
@@ -209,12 +232,12 @@ namespace PartyPlaylistBattle.Database
                 con.Close();
                 return true;
 
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Error inserting the Media");
-                return false;
-            }
+            //}
+            //catch (Exception)
+            //{
+            //    Console.WriteLine("Error inserting the Media");
+            //    return false;
+            //}
         }
 
         public string GetMediaLibrary(string username)
@@ -226,9 +249,9 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //Select Statement
-                var sql = "SELECT name, url, rating, genre, title, length, album FROM library WHERE user = @user";
+                var sql = "SELECT name, url, rating, genre, title, length, album FROM library WHERE username = @username";
                 using var cmd = new NpgsqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("user", username);
+                cmd.Parameters.AddWithValue("username", username);
                 cmd.Prepare();
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
 
@@ -259,9 +282,9 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //Select Statement
-                var sql = "SELECT url FROM library WHERE user = @user AND name = @name";
+                var sql = "SELECT url FROM library WHERE username = @username AND name = @name";
                 using var cmd = new NpgsqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("user", username);
+                cmd.Parameters.AddWithValue("username", username);
                 cmd.Parameters.AddWithValue("name", name);
                 cmd.Prepare();
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
@@ -285,7 +308,7 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //Delete Statement
-                var sql = "DELETE FROM library WHERE user=@username AND name=@name";
+                var sql = "DELETE FROM library WHERE username=@username AND name=@name";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("username", username);
                 cmd.Parameters.AddWithValue("name", name);
@@ -432,6 +455,37 @@ namespace PartyPlaylistBattle.Database
             }
         }
 
+        public string GetStats(string username)
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Select Statement
+                var sql = "SELECT score FROM users WHERE username= @username";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("username", username);
+                cmd.Prepare();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
+                string data = "";
+                //int rating = reader.GetInt32(0) - 100;
+
+
+                while (reader.Read())
+                {
+                    data += " \nYour Score: " + reader.GetInt32(0).ToString() + "\n See other Peoples Score with /scoreboard!";
+                }
+                con.Close();
+                return data;
+            }
+           catch (Exception)
+            {
+                Console.WriteLine("Error displaying Rating");
+                return "0";
+            }
+        }
         public bool SetAdmin(string username)
         {
             try
