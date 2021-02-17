@@ -20,6 +20,10 @@ namespace PartyPlaylistBattle
             db.DeleteUser("altenhof");
             db.DeleteUser("kienboec");
             db.DeleteUser("admin");
+            db.DeleteMediaFromLibrary("altenhof", "Best_song_ever");
+            db.DeleteMediaFromLibrary("altenhof", "Super_Mario_song");
+            db.DeleteMediaFromLibrary("kienboec", "Good_Mood_Song");
+            db.ResetPlaylist();
 
             Console.WriteLine("Starting Server on Port 10001");
             HTTPServer.HTTPServer server = new HTTPServer.HTTPServer(10001);

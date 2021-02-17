@@ -8,7 +8,6 @@ namespace PartyPlaylistBattle.Database
     public class DatabaseHandler
     {
         private readonly string connection;
-        private string currentAdmin;
 
         public DatabaseHandler()
         {
@@ -184,8 +183,8 @@ namespace PartyPlaylistBattle.Database
         //MediaLibrary-Functions
         public bool AddToLibrary(string name, string username, string url, int rating, string genre, string title, string length, string album)
         {
-            //try
-            //{
+            try
+            {
                 //Establishing Connection
                 using var con = new NpgsqlConnection(connection);
                 con.Open();
@@ -232,12 +231,12 @@ namespace PartyPlaylistBattle.Database
                 con.Close();
                 return true;
 
-            //}
-            //catch (Exception)
-            //{
-            //    Console.WriteLine("Error inserting the Media");
-            //    return false;
-            //}
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error inserting the Media");
+                return false;
+            }
         }
 
         public string GetMediaLibrary(string username)
@@ -288,7 +287,12 @@ namespace PartyPlaylistBattle.Database
                 cmd.Parameters.AddWithValue("name", name);
                 cmd.Prepare();
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
-                string url = reader.GetString(0);
+                string url = "";
+                while (reader.Read())
+                {
+                    url += reader.GetString(0);
+                }
+                 
 
                 con.Close();
                 return url;
@@ -357,6 +361,45 @@ namespace PartyPlaylistBattle.Database
             }
         }
 
+        public bool SongInLibrary(string username, string name)
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Select Statement
+                var query = "SELECT COUNT(*) FROM library WHERE name = @name AND username= @username";
+                using NpgsqlCommand cmd = new NpgsqlCommand(query, con);
+                cmd.Parameters.AddWithValue("name",name);
+                cmd.Parameters.AddWithValue("username", username);
+                cmd.Prepare();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
+
+                int count = 0;
+                while (reader.Read())
+                {
+                    count = reader.GetInt32(0);
+                }
+                if (count != 0)
+                {
+                    con.Close();
+                    return true;
+                }
+                else
+                {
+                    con.Close();
+                    return false;
+                }
+          
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting Media");
+                return false;
+            }
+        }
         public string GetPlaylist()
         {
             try
@@ -366,7 +409,7 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //Select Statement
-                var sql = "SELECT order, songname, url FROM playlist ORDER BY order ASC";
+                var sql = "SELECT position, songname, url FROM playlist ORDER BY position ASC";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Prepare();
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
@@ -393,7 +436,7 @@ namespace PartyPlaylistBattle.Database
         {
             try
             {
-                if(username != this.currentAdmin)
+                if(!UserIsAdmin(username))
                 {
                     Console.WriteLine("Non-Admin tried to change Order");
                     return false;
@@ -404,11 +447,9 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //instert Statement
-                var sql = "UPDATE playlist SET order= @toPos WHERE oder= @fromPos";
+                var sql = "UPDATE playlist SET position= @toPos WHERE position= @fromPos";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("username", username);
-                //cmd.Parameters.AddWithValue("password", password);
-               //cmd.Parameters.AddWithValue("newname", newname);
                 cmd.Prepare();
 
                 cmd.ExecuteNonQuery();
@@ -499,9 +540,8 @@ namespace PartyPlaylistBattle.Database
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("username", username);
                 cmd.Prepare();
-                using NpgsqlDataReader reader = cmd.ExecuteReader();               
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
                 con.Close();
-                this.currentAdmin = username;
                 return true;
             }
             catch (Exception)
@@ -533,6 +573,32 @@ namespace PartyPlaylistBattle.Database
             catch (Exception)
             {
                 Console.WriteLine("Error reseting the Admin");
+                return false;
+            }
+        }
+
+        public bool ResetPlaylist()
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Delete Statement
+                var sql = "DELETE FROM playlist";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Prepare();
+
+                cmd.ExecuteNonQuery();
+
+                Console.WriteLine("Playlist Reset");
+                con.Close();
+                return true;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error reseting the Playlist");
                 return false;
             }
         }
@@ -568,6 +634,37 @@ namespace PartyPlaylistBattle.Database
             }
         }
 
+        public bool UserIsAdmin(string username)
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Select Statement
+                var sql = "SELECT users WHERE admin = true";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Prepare();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
+                con.Close();
+                string currentAdmin = "";
+                while(reader.Read())
+                {
+                    currentAdmin += reader.GetString(0);
+                }
+                if(username == currentAdmin)
+                {
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error comparing Admin");
+                return false;
+            }
+        }
         public bool UserExists(string username)
         {
             try

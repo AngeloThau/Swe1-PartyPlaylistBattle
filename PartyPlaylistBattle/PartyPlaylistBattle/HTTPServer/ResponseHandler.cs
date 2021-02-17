@@ -126,6 +126,9 @@ namespace PartyPlaylistBattle.HTTPServer
                     case "/lib":
                         AddToLibrary(ExtractUsername(authorization));
                         break;
+                    case "/playlist":
+                        AddToPlaylist(ExtractUsername(authorization));
+                        break;
                     default:
                         invalidCommand();
                         break;
@@ -157,9 +160,9 @@ namespace PartyPlaylistBattle.HTTPServer
                     case "/actions":
                         SetActions(ExtractUsername(authorization));
                         break;
-                    //case "/deck/unset":
-                       // unsetDeck(user);
-                       // break;
+                    case "/playlist":
+                        ReorderPlaylist(ExtractUsername(authorization));
+                        break;
                     default:
                         invalidCommand();
                         break;
@@ -203,6 +206,9 @@ namespace PartyPlaylistBattle.HTTPServer
                     case "/lib":
                         listLibrary(ExtractUsername(authorization));
                         break;
+                    case "/playlist":
+                        listPlaylist();
+                        break;
                     default:
                         invalidCommand();
                         break;
@@ -211,12 +217,14 @@ namespace PartyPlaylistBattle.HTTPServer
         }
         private void handleDelete(List<string> user)
         {
-            string id = "";
+            string songname = "";
             string splitCommand = command;
             string[] temp = splitCommand.Split("/");
-            id = temp[2];
-            invalidCommand();
+            songname = temp[2];
+            DeleteFromLibrary(ExtractUsername(authorization), songname);
         }
+
+
         public void invalidType()
         {
             string status = "404 Not Found";
@@ -287,6 +295,23 @@ namespace PartyPlaylistBattle.HTTPServer
             }
         }
 
+        public void listPlaylist()
+        {
+            string playlist = db.GetPlaylist();
+            if (playlist == "")
+            {
+                string data = "\nUnexpected Database Error \n";
+                string status = "404 Not found";
+                string mime = "text/plain";
+                Response(status, mime, data);
+            }
+            else
+            {
+                string status = "200 OK";
+                string mime = "text/plain";
+                Response(status, mime, playlist);
+            }
+        }
         public void listLibrary(string username)
         {
             string library = db.GetMediaLibrary(username);
@@ -332,6 +357,30 @@ namespace PartyPlaylistBattle.HTTPServer
             }
         }
 
+        public void AddToPlaylist(string username)
+        {
+            dynamic jasondata = JObject.Parse(body);
+            string name = jasondata.Name;
+
+            if (db.SongInLibrary(username, name))
+            {
+                if (db.AddToPlaylist(name, username))
+                {
+                    string data = "\nMedia sucessfully insterted\n";
+                    string status = "200 OK";
+                    string mime = "text/plain";
+                    Response(status, mime, data);
+                }
+                
+            }
+            else
+            {
+                string data = "\nCannot add Songs that are not in your library\n";
+                string status = "200 OK";
+                string mime = "text/plain";
+                Response(status, mime, data);
+            }
+        }
         public void registerUser()
         {
             dynamic jasondata = JObject.Parse(body);
@@ -401,6 +450,26 @@ namespace PartyPlaylistBattle.HTTPServer
             }
         }
 
+        public void DeleteFromLibrary(string username, string songname) //TODO-GET ERROR WHEN DELETED=0
+        {
+            string status = "";
+            string mime = "";
+            string data = "";
+            if(db.DeleteMediaFromLibrary(username, songname))
+            {
+                data = "\nMedia Deleted\n";
+                status = "200 OK";
+                mime = "text/plain";
+                Response(status, mime, data);
+            }
+            else
+            {
+                data = "\nError when Deleting Media (not in your library?)\n";
+                status = "404 Not Found";
+                mime = "text/plain";
+                Response(status, mime, data);
+            }
+        }
         public void changePlayersData(string username)
         {
             string status = "";
@@ -427,6 +496,40 @@ namespace PartyPlaylistBattle.HTTPServer
                 Response(status, mime, data);
             }
 
+        }
+        public void ReorderPlaylist(string username)
+        {
+            string status = "";
+            string mime = "";
+            string data = "";
+            dynamic jasondata = JObject.Parse(body);
+            int fromPos = jasondata.FromPosition;
+            int toPos = jasondata.ToPosition;
+            
+            if (db.UserIsAdmin(username))
+            {
+                if (db.ReorderPlaylist(username, fromPos, toPos))
+                {
+                    data = "\nPlaylist reordered\n";
+                    status = "200 OK";
+                    mime = "text/plain";
+                    Response(status, mime, data);
+                }
+                else
+                {
+                    data = "\nError when reordering PLaylist\n";
+                    status = "404 Not Found";
+                    mime = "text/plain";
+                    Response(status, mime, data);
+                }
+            }
+            else
+            {
+                data = "\nOnly Admins can Change the Order of the Playlist\n";
+                status = "404 Not Found";
+                mime = "text/plain";
+                Response(status, mime, data);
+            }
         }
     }
 }
