@@ -15,7 +15,7 @@ namespace PartyPlaylistBattle.Tournament
                 case 'R':
                     if (input2 == 'R')
                     { return 0;}
-                    else if(input2 == 'S'||input2=='L')
+                    else if(input2 == 'S' || input2 =='L')
                     { return 1; }
                     else if(input2 == 'V' || input2 == 'P')
                     { return -1; }

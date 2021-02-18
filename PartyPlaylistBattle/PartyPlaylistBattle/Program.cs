@@ -8,6 +8,7 @@ namespace PartyPlaylistBattle
 {
     class Program
     {
+
         static void Main(string[] args)
         {
             
@@ -24,9 +25,10 @@ namespace PartyPlaylistBattle
             db.DeleteMediaFromLibrary("altenhof", "Super_Mario_song");
             db.DeleteMediaFromLibrary("kienboec", "Good_Mood_Song");
             db.ResetPlaylist();
+            db.ResetTournament();
 
             Console.WriteLine("Starting Server on Port 10001");
-            HTTPServer.HTTPServer server = new HTTPServer.HTTPServer(10001);
+            HTTPServerCode.HTTPServer server = new HTTPServerCode.HTTPServer(10001);
             server.Start();
         }
     }

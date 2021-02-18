@@ -8,10 +8,12 @@ namespace PartyPlaylistBattle.Database
     public class DatabaseHandler
     {
         private readonly string connection;
+        public List<Tournament.User> tournamentUsers;
 
         public DatabaseHandler()
         {
             connection = "Host=localhost;Username=postgres;Password=Safetyfirst;Database=PartyPlaylistBattle";
+            tournamentUsers = new List<Tournament.User>();
         }
 
         //User-Functions
@@ -28,7 +30,7 @@ namespace PartyPlaylistBattle.Database
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("username", username);
                 cmd.Parameters.AddWithValue("password", password);
-                cmd.Parameters.AddWithValue("actions", "RRRRR");
+                cmd.Parameters.AddWithValue("actions", "RPSLV");
 
                 cmd.Prepare();
 
@@ -530,7 +532,7 @@ namespace PartyPlaylistBattle.Database
         public bool SetAdmin(string username)
         {
             try
-            {
+            {             
                 //Establishing Connection
                 using var con = new NpgsqlConnection(connection);
                 con.Open();
@@ -591,6 +593,17 @@ namespace PartyPlaylistBattle.Database
                 cmd.Prepare();
 
                 cmd.ExecuteNonQuery();
+                con.Close();
+
+                //2nd Statement (resetting the serial)
+              
+                con.Open();
+
+                var sql2 = "ALTER SEQUENCE playlist_position_seq RESTART WITH 1";
+                using var cmd2 = new NpgsqlCommand(sql2, con);
+                cmd2.Prepare();
+
+                cmd2.ExecuteNonQuery();
 
                 Console.WriteLine("Playlist Reset");
                 con.Close();
@@ -634,6 +647,38 @@ namespace PartyPlaylistBattle.Database
             }
         }
 
+        public string GetActions(string username)
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Select Statement
+                var sql = "SELECT actions FROM users WHERE username = @username";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("username", username);
+                cmd.Prepare();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
+
+            
+                string actions ="";
+
+                while (reader.Read())
+                {
+                    actions += "\n" + reader.GetString(0) + "\n";
+                }
+                con.Close();
+                return actions;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting Score of the User");
+                return "0";
+            }
+        }
+
         public bool UserIsAdmin(string username)
         {
             try
@@ -643,21 +688,24 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //Select Statement
-                var sql = "SELECT users WHERE admin = true";
+                var sql = "SELECT * FROM users WHERE admin = true";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Prepare();
                 using NpgsqlDataReader reader = cmd.ExecuteReader();
-                con.Close();
+                
                 string currentAdmin = "";
                 while(reader.Read())
-                {
+                {                   
                     currentAdmin += reader.GetString(0);
                 }
                 if(username == currentAdmin)
                 {
+                    con.Close();
                     return true;
                 }
+                con.Close();
                 return false;
+
             }
             catch (Exception)
             {
@@ -702,5 +750,218 @@ namespace PartyPlaylistBattle.Database
                 return false;
             }
         }
+
+        //Tournament Functions
+        public bool RegisterUserInTournament(string username)
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                string set = GetActions(username);
+                
+                //instert Statement
+                var sql = "INSERT INTO tournament (username, set, isRunning) VALUES(@username, @set, false)";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("username", username);
+                cmd.Parameters.AddWithValue("set", set);                
+
+                cmd.Prepare();
+
+                cmd.ExecuteNonQuery();
+
+                Console.WriteLine("user registered in Tournament");
+                con.Close();
+                return true;
+
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error inserting a User into Tournament");
+                return false;
+            }
+        }
+
+        public bool ResetTournament()
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Delete Statement
+                var sql = "DELETE FROM tournament";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Prepare();
+
+                cmd.ExecuteNonQuery();
+
+                Console.WriteLine("Tournament Reset");
+                con.Close();
+                return true;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error reseting the Tournament");
+                return false;
+            }
+        }
+
+        public bool TournamentIsRunning()
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Select Statement
+                var sql = "SELECT * FROM tournament WHERE isrunning = true";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Prepare();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
+
+
+                bool running = false;
+                while (reader.Read())
+                {
+                    running = reader.GetBoolean(0);
+                }
+                if(running)
+                {
+                    con.Close();
+                    return true;
+                }
+                con.Close();
+                return false;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting status of Tournament");
+                return false;
+            }
+        }
+
+        public int UsersInTournament()
+        {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Select Statement
+                var sql = "SELECT COUNT(*) FROM tournament";
+                using var cmd = new NpgsqlCommand(sql, con);                
+                cmd.Prepare();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
+
+
+                int count = 0;
+                while (reader.Read())
+                {
+                    count = reader.GetInt32(0);
+                }
+                con.Close();
+                return count;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting Count of Users in Tournament");
+                return 0;
+            }
+        }
+        public List<Tournament.User> GetAllUsersInTournament()
+        {
+           try
+           {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Select Statement
+                var sql = "SELECT username, set FROM tournament";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Prepare();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
+             
+                while (reader.Read())
+                {
+                    char[] set = GetActions(reader.GetString(0)).ToCharArray();
+                    char[] realSet = new char[5];
+                    realSet[0] = set[1];
+                    realSet[1] = set[2];
+                    realSet[2] = set[3];
+                    realSet[3] = set[4];
+                    realSet[4] = set[5];
+                    Tournament.User user = new Tournament.User(reader.GetString(0), realSet);
+                    tournamentUsers.Add(user);
+                }
+                con.Close();
+                return tournamentUsers;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting Users in Tournament");
+                return null;
+            }
+        }
+        public void ClearTournamentUsers()
+        {
+            tournamentUsers.Clear();
+            ResetTournament();
+        }
+
+   
+
+    public void AddScore(string username)
+    {
+            try
+            {
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //Select Statement
+                var sql = "SELECT score FROM users WHERE username= @username";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("username", username);
+                cmd.Prepare();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();
+                string data = "";
+                //int rating = reader.GetInt32(0) - 100;
+                int score = 0;
+
+                while (reader.Read())
+                {
+                    score = reader.GetInt32(0);
+                }
+                con.Close();
+
+                //2nd Statement
+                score++;
+                con.Open();
+
+                //Select Statement
+                var sql2 = "UPDATE users SET score= @score WHERE username= @username";
+                using var cmd2 = new NpgsqlCommand(sql2, con);
+                cmd2.Parameters.AddWithValue("username", username);
+                cmd2.Parameters.AddWithValue("score", score);
+                cmd2.Prepare();
+                using NpgsqlDataReader reader2 = cmd2.ExecuteReader();                
+              
+                con.Close();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error displaying Rating");
+            }
+
+        }
+
+
     }
 }

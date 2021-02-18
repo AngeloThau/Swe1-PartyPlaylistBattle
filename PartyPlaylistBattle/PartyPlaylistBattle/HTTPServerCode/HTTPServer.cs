@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Xml.Serialization;
 
-namespace PartyPlaylistBattle.HTTPServer
+namespace PartyPlaylistBattle.HTTPServerCode
 {
 
     public class HTTPServer
@@ -22,7 +22,8 @@ namespace PartyPlaylistBattle.HTTPServer
         static object waitingForPlayer = new object();
         Database.DatabaseHandler db = new Database.DatabaseHandler();
         public List<string> Log;
-
+        
+        
 
 
         public HTTPServer(int port)
@@ -93,6 +94,7 @@ namespace PartyPlaylistBattle.HTTPServer
                 {
                     user = msghandler.login(user);
                 }
+                
                 else
                 {
                     msghandler.handlePost(user);
@@ -102,6 +104,11 @@ namespace PartyPlaylistBattle.HTTPServer
             {
                 msghandler.fromTypeToMethod(user);
             }
+        }
+
+        public void Tournament(string username)
+        {
+            
         }
 
     } 

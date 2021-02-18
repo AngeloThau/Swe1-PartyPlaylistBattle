@@ -9,10 +9,11 @@ using System.Threading;
 using System.Xml.Serialization;
 using System.Net.Security;
 
-namespace PartyPlaylistBattle.HTTPServer
+namespace PartyPlaylistBattle.HTTPServerCode
 {
     public class ClientWrapper
     {
+        
         private TcpClient wrapperClient;
         public ClientWrapper()
         {

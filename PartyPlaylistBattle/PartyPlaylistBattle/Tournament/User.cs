@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PartyPlaylistBattle.Tournament
 {
-    class User
+    public class User
     {
         public string username;
         public char[] set;

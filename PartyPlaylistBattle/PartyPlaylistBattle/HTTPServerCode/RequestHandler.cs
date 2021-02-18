@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PartyPlaylistBattle.HTTPServer
+namespace PartyPlaylistBattle.HTTPServerCode
 {
     class RequestHandler
 
@@ -13,6 +13,8 @@ namespace PartyPlaylistBattle.HTTPServer
         public string Authorization { get; set; }
         public string Body { get; set; }
         public string[] Rest { get; set; }
+
+        public string username = "";
 
         public RequestHandler(string request)
         {
@@ -46,7 +48,7 @@ namespace PartyPlaylistBattle.HTTPServer
                 {
                     Body += Rest[x];
                 }
-
+                username = GetUsernameFromAuthorization(request);
                 Authorization = CheckAuthorization(Rest, "Authorization: Basic");
             }
         }
@@ -63,6 +65,21 @@ namespace PartyPlaylistBattle.HTTPServer
                 }
             }
             return "";
+        }
+
+        public string GetUsernameFromAuthorization(string request)
+        {
+            string[] lines = request.Split("\r\n");
+            foreach (var line in lines)
+            {
+                if (line.Contains("Authorization: "))
+                {
+                    string[] tokens = line.Split(" ");
+                    string[] username = tokens[2].Split("-");
+                    return username[0];
+                }
+            }
+            return " ";
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using Newtonsoft.Json.Linq;
 
-namespace PartyPlaylistBattle.HTTPServer
+namespace PartyPlaylistBattle.HTTPServerCode
 {
     class ResponseHandler
     {
@@ -17,6 +19,9 @@ namespace PartyPlaylistBattle.HTTPServer
         PartyPlaylistBattle.Database.DatabaseHandler db;
         public List<string> loggedInUser;
         static object lockObj = new object();
+        public Tournament.Battle battleHandler = new Tournament.Battle();
+        public List<Tournament.User> tournamentUsers = new List<Tournament.User>();
+        
 
         public ResponseHandler(TcpClient _client, string _type, string _command, string _authorization, string _body, List<string> _user)
         {
@@ -129,7 +134,10 @@ namespace PartyPlaylistBattle.HTTPServer
                     case "/playlist":
                         AddToPlaylist(ExtractUsername(authorization));
                         break;
-                    default:
+                    case "/battles":
+                        Tournament(ExtractUsername(authorization));
+                        break;
+                default:
                         invalidCommand();
                         break;
                 }
@@ -208,6 +216,9 @@ namespace PartyPlaylistBattle.HTTPServer
                         break;
                     case "/playlist":
                         listPlaylist();
+                        break;
+                    case "/actions":
+                        listActions(ExtractUsername(authorization));
                         break;
                     default:
                         invalidCommand();
@@ -327,6 +338,24 @@ namespace PartyPlaylistBattle.HTTPServer
                 string status = "200 OK";
                 string mime = "text/plain";
                 Response(status, mime, library);
+            }
+        }
+
+        public void listActions(string username)
+        {
+            string actions = db.GetActions(username);
+            if (actions == "")
+            {
+                string data = "\nUnexpected Database Error \n";
+                string status = "404 Not found";
+                string mime = "text/plain";
+                Response(status, mime, data);
+            }
+            else
+            {
+                string status = "200 OK";
+                string mime = "text/plain";
+                Response(status, mime, actions);
             }
         }
 
@@ -531,5 +560,72 @@ namespace PartyPlaylistBattle.HTTPServer
                 Response(status, mime, data);
             }
         }
+
+        public void Tournament(string username)
+        {
+            string status = "";
+            string mime = "";
+            string data = "";
+            char[] set = db.GetActions(username).ToCharArray();
+            char[] realSet = new char[5];
+            realSet[0] = set[1];
+            realSet[1] = set[2];
+            realSet[2] = set[3];
+            realSet[3] = set[4];
+            realSet[4] = set[5];
+
+
+            if (db.TournamentIsRunning())
+            {
+                data = "\nThere is an active Tournament right now, please wait\n";
+                status = "404 Not Found";
+                mime = "text/plain";
+                Response(status, mime, data);
+            }
+
+               else if (db.UsersInTournament() == 0)
+                {
+                    if (db.RegisterUserInTournament(username))
+                    {
+                        Thread.Sleep(15000);
+
+                        tournamentUsers = db.GetAllUsersInTournament().ToList();
+                        battleHandler.Tournament(tournamentUsers);
+                        db.ClearTournamentUsers();
+                        data = battleHandler.log;
+                        status = "200 OK";
+                        mime = "text/plain";
+                        Response(status, mime, data);
+                    }
+                    else
+                    {
+                        data = "\nUnexpected Error in registering User\n";
+                        status = "404 Not Found";
+                        mime = "text/plain";
+                        Response(status, mime, data);
+                    }
+                }
+                else if (db.UsersInTournament() > 0)
+                {
+                    if (db.RegisterUserInTournament(username))
+                    {
+                        Thread.Sleep(15000);
+                        data = battleHandler.log;
+                        status = "200 OK";
+                        mime = "text/plain";
+                        Response(status, mime, data);
+
+                    }
+                    else
+                    {
+                        data = "\nUnexpected Error in registering User\n";
+                        status = "404 Not Found";
+                        mime = "text/plain";
+                        Response(status, mime, data);
+                    }
+                }
+            
+        }
+
     }
 }

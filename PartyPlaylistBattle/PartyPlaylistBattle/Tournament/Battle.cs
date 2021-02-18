@@ -6,14 +6,16 @@ namespace PartyPlaylistBattle.Tournament
 {
     class Battle
     {
-        public List<User> users;
-        public RPSLogic logic = new RPSLogic();
+        public RPSLogic logic;       
+        public string log = "";
+        Database.DatabaseHandler db = new Database.DatabaseHandler();
 
-        public Battle(char[] one, char[] two)
-        { 
+        public Battle()
+        {
+            logic = new RPSLogic();           
         }
 
-        public int BattleRound(User one, User two)
+        int BattleRound(User one, User two)
         {
             int roundScore = 0;
             for(int i=0; i<5; i++)
@@ -23,10 +25,10 @@ namespace PartyPlaylistBattle.Tournament
             return roundScore;
         }
 
-        public bool RegisterUser(string username, char[] set)
+        public bool RegisterUser(string username, char[] set, List<User> users)
         {
             User register = new User(username, set);
-            this.users.Add(register);
+            users.Add(register);
             if(users.Contains(register))
             {
                 return true;
@@ -34,9 +36,11 @@ namespace PartyPlaylistBattle.Tournament
             return false;
         }
 
-        public string Tournament(List<User> users)
+        public void Tournament(List<User> users)
         {
+            
             User winner = new User();
+            log = "";
             //Mehr als 1 User im Tournament
             while(users.Count>1)
             {
@@ -46,24 +50,31 @@ namespace PartyPlaylistBattle.Tournament
                     {
                         if (BattleRound(users[i], users[z]) == 0)
                         {
-                            Console.WriteLine(users[i].username + "and " + users[z].username + "had a draw, both will be removed");
+                            this.log += users[i].username + " and " + users[z].username + " had a draw, both will be removed\n";
                             users.RemoveAt(i);
                             users.RemoveAt(0);
                             break;
                         }
                         else if (BattleRound(users[i], users[z]) > 0)
                         {
+                            log += users[i].username + " won, +1 to Tournament Score!\n";
                             users[i].personalScore++;
                         }
                         else if (BattleRound(users[i], users[z]) < 0)
                         {
+                            log += users[z].username + " won, +1 to Tournament Score\n";
                             users[z].personalScore++;
                         }
                     }
                     i++;
                 }
 
-                //Get the Winner (if 2 have same amount of point first in list will win)    
+                //Get the Winner (if 2 have same amount of point first in list will win, if no one is left return)   
+                if(users.Count == 0)
+                {
+                    log += " Nobody is Left!\n";
+                    return;
+                }
                 winner = users[0];
                 for (int i = 1; i < users.Count; i++)
                 {
@@ -72,18 +83,22 @@ namespace PartyPlaylistBattle.Tournament
                         winner = users[i];
                     }
                 }
-                Console.WriteLine(winner.username + "is the winner!");
-                return winner.username;
+
+                log += winner.username + "is the winner!";
+                db.SetAdmin(winner.username);
+                return;
             }
             
             //1 User übrig
             if (users.Count == 1)
             {
-                Console.WriteLine(users[0].username + "is the winner by default");
-                return users[0].username;
+                log += users[0].username + " is the winner by default";
+               
+                db.SetAdmin(users[0].username);
+                return;
             }
 
-            return winner.username;
+           
         }
     }
 }
