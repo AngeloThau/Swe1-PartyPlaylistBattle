@@ -26,7 +26,7 @@ namespace PartyPlaylistBattle.Database
                 con.Open();
 
                 //instert Statement
-                var sql = "INSERT INTO users (username, password, admin, score, actions, bio, image, name) VALUES(@username, @password, false, 100, @actions, '', '', '')";
+                var sql = "INSERT INTO users (username, password, admin, score, actions, bio, image, name) VALUES(@username, @password, false, 0, @actions, '', '', '')";
                 using var cmd = new NpgsqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("username", username);
                 cmd.Parameters.AddWithValue("password", password);
@@ -434,6 +434,36 @@ namespace PartyPlaylistBattle.Database
             }
         }
 
+        public string GetSongname(int position)
+        {
+            try
+            {               
+                //Establishing Connection
+                using var con = new NpgsqlConnection(connection);
+                con.Open();
+
+                //instert Statement
+                var sql = "SELECT songname FROM playlist WHERE position= @position";
+                using var cmd = new NpgsqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("position", position);
+                cmd.Prepare();
+                using NpgsqlDataReader reader = cmd.ExecuteReader();        
+                string data = "";
+                while (reader.Read())
+                {
+                    data = reader.GetString(0);
+                }
+                con.Close();
+                return data;
+
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Error getting Songname");
+                return "0";
+            }
+        }
+
         public bool ReorderPlaylist(string username, int fromPos, int toPos)
         {
             try
@@ -444,20 +474,41 @@ namespace PartyPlaylistBattle.Database
                     return false;
                 }
 
+                //Get both Songnames
+                string song1 = GetSongname(fromPos);
+                string song2 = GetSongname(toPos);
+
                 //Establishing Connection
                 using var con = new NpgsqlConnection(connection);
                 con.Open();
 
                 //instert Statement
-                var sql = "UPDATE playlist SET position= @toPos WHERE position= @fromPos";
+                var sql = "UPDATE playlist SET position= @toPos WHERE position= @fromPos AND songname = @songname";
                 using var cmd = new NpgsqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("username", username);
+                cmd.Parameters.AddWithValue("songname", song1);
+                cmd.Parameters.AddWithValue("fromPos", fromPos);
+                cmd.Parameters.AddWithValue("toPos", toPos);
                 cmd.Prepare();
 
                 cmd.ExecuteNonQuery();
-
-                Console.WriteLine("Media added to Playlist");
+                Console.WriteLine("First Song shuffeled");
                 con.Close();
+
+                //2nd Statement
+                con.Open();
+
+                //instert Statement
+                var sql2 = "UPDATE playlist SET position= @fromPos WHERE position= @toPos AND songname = @songname";
+                using var cmd2 = new NpgsqlCommand(sql2, con);
+                cmd2.Parameters.AddWithValue("songname", song2);
+                cmd2.Parameters.AddWithValue("fromPos", fromPos);
+                cmd2.Parameters.AddWithValue("toPos", toPos);
+                cmd2.Prepare();
+
+                cmd2.ExecuteNonQuery();
+                Console.WriteLine("Second Song shuffeled");
+                con.Close();
+
                 return true;
 
             }

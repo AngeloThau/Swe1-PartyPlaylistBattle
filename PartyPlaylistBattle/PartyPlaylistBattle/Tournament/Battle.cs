@@ -38,7 +38,7 @@ namespace PartyPlaylistBattle.Tournament
 
         public void Tournament(List<User> users)
         {
-            
+            db.ResetAdmin();
             User winner = new User();
             log = "";
             //Mehr als 1 User im Tournament
@@ -57,12 +57,12 @@ namespace PartyPlaylistBattle.Tournament
                         }
                         else if (BattleRound(users[i], users[z]) > 0)
                         {
-                            log += users[i].username + " won, +1 to Tournament Score!\n";
+                            log += users[i].username + " won against " + users[z].username  + ", +1 to Tournament Score!\n";
                             users[i].personalScore++;
                         }
                         else if (BattleRound(users[i], users[z]) < 0)
                         {
-                            log += users[z].username + " won, +1 to Tournament Score\n";
+                            log += users[z].username + " won against" + users[i].username + ", +1 to Tournament Score!\n";
                             users[z].personalScore++;
                         }
                     }
@@ -72,7 +72,7 @@ namespace PartyPlaylistBattle.Tournament
                 //Get the Winner (if 2 have same amount of point first in list will win, if no one is left return)   
                 if(users.Count == 0)
                 {
-                    log += " Nobody is Left!\n";
+                    log += " Nobody is Left! (Nobody is Admin)\n";
                     return;
                 }
                 winner = users[0];
@@ -84,6 +84,7 @@ namespace PartyPlaylistBattle.Tournament
                     }
                 }
 
+                db.AddScore(winner.username);
                 log += winner.username + "is the winner!";
                 db.SetAdmin(winner.username);
                 return;
@@ -93,7 +94,7 @@ namespace PartyPlaylistBattle.Tournament
             if (users.Count == 1)
             {
                 log += users[0].username + " is the winner by default";
-               
+                db.AddScore(users[0].username);
                 db.SetAdmin(users[0].username);
                 return;
             }

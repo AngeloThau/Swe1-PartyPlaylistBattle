@@ -4,7 +4,7 @@ using System.Text;
 
 namespace PartyPlaylistBattle.Tournament
 {
-    class RPSLogic
+    public class RPSLogic
     {
               
 

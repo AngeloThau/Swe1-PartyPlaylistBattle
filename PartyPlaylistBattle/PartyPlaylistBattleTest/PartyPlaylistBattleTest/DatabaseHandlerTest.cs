@@ -34,5 +34,26 @@ namespace PartyPlaylistBattleTest
             Assert.IsTrue(test.ResetAdmin());
         }
 
+        [Test]
+        public void DatabaseHandlerResetPlaylist()
+        {
+            PartyPlaylistBattle.Database.DatabaseHandler test = new PartyPlaylistBattle.Database.DatabaseHandler();
+            Assert.IsTrue(test.ResetPlaylist());
+        }
+
+        [Test]
+        public void DatabaseHandlerResetTournment()
+        {
+            PartyPlaylistBattle.Database.DatabaseHandler test = new PartyPlaylistBattle.Database.DatabaseHandler();
+            Assert.IsTrue(test.ResetTournament());
+        }
+
+        [Test]
+        public void DatabaseHandlerChangeActions()
+        {
+            string actions = "RPSSS";
+            PartyPlaylistBattle.Database.DatabaseHandler test = new PartyPlaylistBattle.Database.DatabaseHandler();
+            Assert.IsTrue(test.ChangeActions("Firsty", actions));
+        }
     }
 }
