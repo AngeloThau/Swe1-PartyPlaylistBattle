@@ -380,7 +380,7 @@ namespace PartyPlaylistBattle.HTTPServerCode
             else
             {
                 string data = "\nUnexpected Database Error\n";
-                string status = "200 OK";
+                string status = "404";
                 string mime = "text/plain";
                 Response(status, mime, data);
             }
