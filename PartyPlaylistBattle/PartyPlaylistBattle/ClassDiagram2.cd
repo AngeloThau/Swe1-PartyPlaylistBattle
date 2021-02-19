@@ -1,2 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ClassDiagram /> 
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="PartyPlaylistBattle.Tournament.Battle" Collapsed="true">
+    <Position X="10.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EgAAAAAAAAAQAAAAAAAASAAAAAAAAAAAAAAAAAAgAAA=</HashCode>
+      <FileName>Tournament\Battle.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PartyPlaylistBattle.Tournament.RPSLogic" Collapsed="true">
+    <Position X="8.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>Tournament\RPSLogic.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PartyPlaylistBattle.Tournament.User" Collapsed="true">
+    <Position X="10.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAQAAAEAAAAIAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tournament\User.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PartyPlaylistBattle.HTTPServerCode.ClientWrapper" Collapsed="true">
+    <Position X="2.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAACAAAA=</HashCode>
+      <FileName>HTTPServerCode\ClientWrapper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PartyPlaylistBattle.HTTPServerCode.HTTPServer" Collapsed="true">
+    <Position X="2.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AoAAAAAAACAQIBAAAAEAAAAAAIgAAAAAAAQAAAAAAQI=</HashCode>
+      <FileName>HTTPServerCode\HTTPServer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PartyPlaylistBattle.HTTPServerCode.RequestHandler" Collapsed="true">
+    <Position X="4.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAIABBBAEAACAAAAAAAQAAAABAAAA=</HashCode>
+      <FileName>HTTPServerCode\RequestHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PartyPlaylistBattle.HTTPServerCode.ResponseHandler" Collapsed="true">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BhABAAAEAwhRAAAAEAAgAKgAAQQBQgAEGDEhBFIAEQA=</HashCode>
+      <FileName>HTTPServerCode\ResponseHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PartyPlaylistBattle.Database.DatabaseHandler" Collapsed="true">
+    <Position X="10.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAJABADMBAAiSAEAgAhABgABAgAaQIBAAAAAAABAAE=</HashCode>
+      <FileName>Database\DatabaseHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
